@@ -4,7 +4,7 @@ Title: Tests for flipRegression
 Version: 0.1.0
 Author: Displayr <opensource@displayr.com>
 Maintainer: Displayr <opensource@displayr.com>
-Description: Additional tests for the flipRegression package
+Description: Additional tests for the flipRegression package.
 License: GPL-3
 LazyData: TRUE
 Imports:
