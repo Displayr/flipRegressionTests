@@ -1,4 +1,5 @@
 context("anova")
+require(flipRegression)
 data(bank, package = "flipExampleData")
 zformula <- formula("Overall ~ Fees + Interest + Phone + Branch + Online + ATM")
 sb <- bank$ID > 100
