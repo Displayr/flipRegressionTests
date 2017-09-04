@@ -1,15 +1,9 @@
 language: r
 r:
   - release
-
 dist: trusty  # ubuntu 14.04 has additional libraries available
 sudo: required
-
-cache: packages
-# before_cache:
-#   - sudo rm -rf $HOME/R/Library/flip*
-#   - sudo rm -rf $HOME/R/Library/rhtml*
-
+cache: false
 warnings_are_errors: false
 
 # install debian libraries to match R-servers
@@ -23,8 +17,8 @@ r_packages:
   - covr
 
 r_github_packages:
-  - Displayr/flipExampleData
   - Displayr/travisCI
+  - Displayr/flipExampleData
 
 script:
   - R CMD build --no-manual --no-build-vignettes --no-resave-data .
@@ -44,5 +38,5 @@ notifications:
 # by calling R functions so they can be updated in this package without
 # committing a new change to .travis.yml in each repository
 after_success: 
-  - Rscript -e "travisCI::NotifyWarnings(); travisCI::TriggerDownstreamBuilds()"
-  - travis_wait Rscript -e "covr::coveralls()"
+  - Rscript -e "require(travisCI); NotifyWarnings(); TriggerDownstreamBuilds()"
+  - travis_wait Rscript -e "travisCI::CheckCoverage()"
