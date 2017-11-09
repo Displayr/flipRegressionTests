@@ -1,6 +1,8 @@
 context("Regression Diagnostics")
 zformula <- formula("Overall ~ Fees + Interest + Phone + Branch + Online + ATM")
 data(bank, package = "flipExampleData")
+bank <- bank[sample(nrow(bank), 200), ] # random sample of 200 rows to improve perfomance
+
 sb <- bank$ID > 100
 attr(sb, "label") <- "ID greater than 100"
 wgt <- bank$ID
@@ -243,3 +245,4 @@ test_that("VIF",
      for (type in c( "Ordered Logit",  "Multinomial Logit"))
         expect_that(capture.output(vif(suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank, type = type, subset = bank$ID > 100, weights = bank$ID)))), (throws_error()))
  })
+
