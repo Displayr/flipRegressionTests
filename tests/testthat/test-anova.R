@@ -35,6 +35,24 @@ test_that(paste("Robust se does something"),
               
           })
 
+for(missing in c("Multiple imputation", "Imputation (replace missing values with estimates)", "Exclude cases with missing data"))
+    for (type in c("Binary Logit", "Ordered Logit"))
+        test_that(paste("Type by residual", missing, type),
+      {
+          # no weight, no filter
+          z = suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, missing = missing, data = bank, subset = TRUE,  weights = NULL, type = type))
+          expect_error(print(Anova(z)), NA)
+          # Filter
+          z <- suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, missing = missing, data = bank, subset = sb,  weights = NULL, type = type))
+          expect_error(print(Anova(z)), NA)
+          # weight,
+          z <- suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, missing = missing, data = bank, subset = TRUE,  weights = wgt, type = type))
+          expect_error(print(suppressWarnings(Anova(z))), NA)
+          # weight, filter
+          z <- suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, missing = missing, data = bank, subset = sb,  weights = wgt, type = type))
+          expect_error(print(suppressWarnings(Anova(z))), NA)
+      })
+
 #### REDUCE DATA SIZE FOR TESTS WITHOUT NUMERICAL EQUALITY ###
 
 data(bank, package = "flipExampleData")
@@ -92,7 +110,7 @@ test_that(paste("Alternative ways of passing data in"),
 
 
 for(missing in c("Multiple imputation", "Imputation (replace missing values with estimates)", "Exclude cases with missing data"))
-    for (type in c("Multinomial Logit", "Linear","Poisson", "Quasi-Poisson","Binary Logit", "Ordered Logit", "NBD"))
+    for (type in c("Multinomial Logit", "Linear","Poisson", "Quasi-Poisson", "NBD"))
         test_that(paste("Type by residual", missing, type),
       {
           # no weight, no filter
