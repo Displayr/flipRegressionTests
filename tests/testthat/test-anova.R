@@ -45,12 +45,14 @@ for(missing in c("Multiple imputation", "Imputation (replace missing values with
           # Filter
           z <- suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, missing = missing, data = bank, subset = sb,  weights = NULL, type = type))
           expect_error(print(Anova(z)), NA)
+          # Weighted Ordered Logit error check
+          anova.error <- if (type != "Ordered Logit") NA else "^'Anova' can not be computed for a 'Ordered Logit' model with weights"
           # weight,
           z <- suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, missing = missing, data = bank, subset = TRUE,  weights = wgt, type = type))
-          expect_error(print(suppressWarnings(Anova(z))), NA)
+          expect_error(print(suppressWarnings(Anova(z))), anova.error)
           # weight, filter
           z <- suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, missing = missing, data = bank, subset = sb,  weights = wgt, type = type))
-          expect_error(print(suppressWarnings(Anova(z))), NA)
+          expect_error(print(suppressWarnings(Anova(z))), anova.error)
       })
 
 #### REDUCE DATA SIZE FOR TESTS WITHOUT NUMERICAL EQUALITY ###

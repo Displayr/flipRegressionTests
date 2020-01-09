@@ -18,6 +18,7 @@ before_install:
   - rcode+="write.csv(out, file='test_results.csv'); "
   - rcode+="quit(status = !identical(n.fail, 0), save='no');"
   - Rscript tools/travis_run_before_install.R
+  - export flipRegression_BRANCH_NAME=DS-2498
 
 r_packages:
   - devtools
