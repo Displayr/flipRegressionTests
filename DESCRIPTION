@@ -1,20 +1,17 @@
 Package: flipRegressionTests
 Type: Package
 Title: Tests for flipRegression
-Version: 1.0.1
+Version: 1.0.2
 Author: Displayr <opensource@displayr.com>
 Maintainer: Displayr <opensource@displayr.com>
 Description: Additional tests for the flipRegression package.
 License: GPL-3
 LazyData: TRUE
-Imports:
-    flipRegression
-Suggests:
-    testthat,
-    flipExampleData,
-    car,
-    survey
-Remotes:
-    Displayr/flipRegression
+Imports: flipRegression
+Suggests: testthat,
+ flipExampleData,
+ car,
+ survey
+Remotes: Displayr/flipRegression
 RoxygenNote: 7.0.2
 Encoding: UTF-8
