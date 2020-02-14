@@ -1,5 +1,5 @@
 context("Regression Diagnostics")
-RNGversion("3.5.3")
+suppressWarnings(RNGversion("3.5.3"))
 zformula <- formula("Overall ~ Fees + Interest + Phone + Branch + Online + ATM")
 data(bank, package = "flipExampleData")
 # random sample of 200 rows to improve perfomance
