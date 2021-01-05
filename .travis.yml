@@ -29,7 +29,7 @@ r_github_packages:
 script:
   - R CMD build --no-manual --no-build-vignettes --no-resave-data .
   - R CMD check --as-cran --no-manual --no-build-vignettes --no-tests *.tar.gz
-  - travis_wait 40 ./runTravisTests.sh
+#  - travis_wait 40 ./runTravisTests.sh
 
 notifications:
   slack:
