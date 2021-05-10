@@ -32,6 +32,7 @@ script:
   - R CMD build --no-manual --no-build-vignettes --no-resave-data .
   - R CMD check --as-cran --no-manual --no-build-vignettes --no-tests *.tar.gz
   - travis_wait 50 ./runTravisTests.sh
+
 notifications:
   slack:
     rooms:
