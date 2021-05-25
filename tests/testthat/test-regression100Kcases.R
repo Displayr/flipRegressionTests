@@ -93,7 +93,7 @@ test_that("Multinomial response",
                          data = vehicles, type = "Ordered Logit")
     expect_is(fit, "OrderedLogitRegression")
     expect_equal(dim(flipData::Probabilities(fit)),
-                 c(n, nlev)))
+                 c(n, nlev))
     expect_equal(nlevels(predict(fit)), nlev)
     expect_is(Regression(year~.-region_weight, weights = region_weight,
                          data = vehicles, type = "Ordered Logit"),
