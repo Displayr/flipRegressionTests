@@ -12,7 +12,10 @@ Imports: flipRegression
 Suggests: testthat,
  flipExampleData,
  car,
- survey
-Remotes: Displayr/flipRegression
+ survey,
+ flipData
+Remotes: Displayr/flipRegression,
+ Displayr/flipExampleData,
+ Displayr/flipData
 RoxygenNote: 7.0.2
 Encoding: UTF-8
