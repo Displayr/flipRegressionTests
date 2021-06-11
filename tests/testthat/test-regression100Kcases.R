@@ -209,6 +209,10 @@ test_that("Diagnostics",
     ## Regression - Diagnostic - Plot - Goodness of Fit
     expect_error(GoodnessOfFitPlot(fit, max.points = 1000), NA)
     ## Regression - Diagnostic - Plot - Influence Index
+    if (is.null(names(fit$original$residuals)))
+        names(fit$original$residuals) <- seq_along(fit$original$residuals)
+    if (is.null(names(fit$original$y)))
+        names(fit$original$y) <- seq_along(fit$original$residuals)
     expect_error(car::influenceIndexPlot(fit,
                                          id = list(method = 'y', n = 5, cex = 1,
                                                    location = 'lr'),
