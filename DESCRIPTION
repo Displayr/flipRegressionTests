@@ -1,7 +1,7 @@
 Package: flipRegressionTests
 Type: Package
 Title: Tests for flipRegression
-Version: 1.0.3
+Version: 1.0.4
 Author: Displayr <opensource@displayr.com>
 Maintainer: Displayr <opensource@displayr.com>
 Description: Additional tests for the flipRegression package.
@@ -12,9 +12,11 @@ Imports: flipRegression
 Suggests: testthat,
  flipExampleData,
  car,
- survey,
+ survey (<= 4.0),
  flipData
-Remotes: Displayr/flipRegression,
+Remotes:
+ cran/survey@4.0
+ Displayr/flipRegression,
  Displayr/flipExampleData,
  Displayr/flipData
 RoxygenNote: 7.0.2
