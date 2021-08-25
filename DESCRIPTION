@@ -15,7 +15,7 @@ Suggests: testthat,
  survey (<= 4.0),
  flipData
 Remotes:
- cran/survey@4.0
+ cran/survey@4.0,
  Displayr/flipRegression,
  Displayr/flipExampleData,
  Displayr/flipData
