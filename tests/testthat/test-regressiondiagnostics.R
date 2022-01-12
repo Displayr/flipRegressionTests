@@ -244,6 +244,7 @@ test_that("VIF",
         class(out) <- c(class(out), "visualization-selector")
         out
      }
+     zRegression <- vif(suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank)))
      zR <- new.vif(lm(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank))
      expect_equal(zRegression, zR)
      # Filtered - linear
