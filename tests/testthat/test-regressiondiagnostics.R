@@ -4,28 +4,28 @@ zformula <- formula("Overall ~ Fees + Interest + Phone + Branch + Online + ATM")
 data(bank, package = "flipExampleData")
 # random sample of 200 rows to improve perfomance
 # Hard code relevant cases
-relevant.rows <- c("756", "383", "863", "56", "539", "377", "54", "206", "811", 
-                   "871", "603", "176", "293", "425", "285", "408", "599", "617", 
-                   "372", "433", "210", "219", "64", "338", "883", "413", "265", 
-                   "192", "658", "229", "767", "240", "67", "541", "796", "424", 
-                   "480", "458", "820", "25", "15", "359", "858", "227", "526", 
-                   "370", "17", "638", "287", "800", "436", "823", "214", "101", 
-                   "254", "690", "732", "200", "656", "244", "182", "253", "832", 
-                   "521", "587", "828", "446", "309", "702", "423", "467", "55", 
-                   "721", "70", "657", "585", "529", "365", "519", "513", "733", 
-                   "385", "87", "552", "542", "768", "840", "506", "294", "698", 
-                   "885", "757", "40", "93", "522", "805", "679", "877", "879", 
-                   "749", "731", "36", "806", "630", "258", "559", "614", "447", 
-                   "577", "683", "339", "346", "561", "89", "250", "720", "825", 
-                   "327", "625", "79", "129", "710", "164", "575", "49", "643", 
-                   "822", "428", "550", "787", "644", "329", "642", "95", "295", 
-                   "248", "146", "483", "517", "322", "463", "788", "361", "841", 
-                   "641", "417", "218", "314", "672", "619", "707", "580", "719", 
-                   "771", "812", "489", "452", "440", "251", "86", "718", "207", 
-                   "786", "426", "875", "379", "366", "414", "407", "664", "896", 
-                   "109", "624", "135", "35", "443", "734", "160", "9", "627", "449", 
-                   "442", "177", "114", "445", "53", "296", "315", "535", "337", 
-                   "534", "509", "399", "553", "261", "347", "847", "505", "833", 
+relevant.rows <- c("756", "383", "863", "56", "539", "377", "54", "206", "811",
+                   "871", "603", "176", "293", "425", "285", "408", "599", "617",
+                   "372", "433", "210", "219", "64", "338", "883", "413", "265",
+                   "192", "658", "229", "767", "240", "67", "541", "796", "424",
+                   "480", "458", "820", "25", "15", "359", "858", "227", "526",
+                   "370", "17", "638", "287", "800", "436", "823", "214", "101",
+                   "254", "690", "732", "200", "656", "244", "182", "253", "832",
+                   "521", "587", "828", "446", "309", "702", "423", "467", "55",
+                   "721", "70", "657", "585", "529", "365", "519", "513", "733",
+                   "385", "87", "552", "542", "768", "840", "506", "294", "698",
+                   "885", "757", "40", "93", "522", "805", "679", "877", "879",
+                   "749", "731", "36", "806", "630", "258", "559", "614", "447",
+                   "577", "683", "339", "346", "561", "89", "250", "720", "825",
+                   "327", "625", "79", "129", "710", "164", "575", "49", "643",
+                   "822", "428", "550", "787", "644", "329", "642", "95", "295",
+                   "248", "146", "483", "517", "322", "463", "788", "361", "841",
+                   "641", "417", "218", "314", "672", "619", "707", "580", "719",
+                   "771", "812", "489", "452", "440", "251", "86", "718", "207",
+                   "786", "426", "875", "379", "366", "414", "407", "664", "896",
+                   "109", "624", "135", "35", "443", "734", "160", "9", "627", "449",
+                   "442", "177", "114", "445", "53", "296", "315", "535", "337",
+                   "534", "509", "399", "553", "261", "347", "847", "505", "833",
                    "637")
 bank <- bank[row.names(bank) %in% relevant.rows, ]
 
@@ -238,12 +238,17 @@ test_that("VIF",
            {
      library(car)
      # Unweighted - linear
-     zRegression <- vif(suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank)))
-     zR <- vif(lm(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank))
+     new.vif <- function(x) {
+        out <- car::vif(x)
+        out <- as.matrix(out)
+        class(out) <- c(class(out), "visualization-selector")
+        out
+     }
+     zR <- new.vif(lm(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank))
      expect_equal(zRegression, zR)
      # Filtered - linear
      zRegression <- vif(suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank, subset = bank$ID > 100)))
-     zR <- vif(lm(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank, subset = bank$ID > 100))
+     zR <- new.vif(lm(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank, subset = bank$ID > 100))
      expect_equal(zRegression, zR)
      # Weighted.
      expect_error(vif(suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank, subset = bank$ID > 100, weights = bank$ID))), NA)
@@ -251,11 +256,11 @@ test_that("VIF",
      type = "Binary Logit"
      zRegression <- suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank, type = type))
      zR <- glm(Overall >= 4 ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank,  family = binomial(link = "logit"))
-     expect_equal(vif(zRegression), vif(zR))
+     expect_equal(vif(zRegression), new.vif(zR))
      # Logit - filtered
      zRegression <- suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank, type = type, subset = bank$ID > 100))
      zR <- glm(Overall >= 4 ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank,  family = binomial(link = "logit"), subset = bank$ID > 100)
-     expect_equal(vif(zRegression), vif(zR))
+     expect_equal(vif(zRegression), new.vif(zR))
      # Logit - filtered and weighted
      z = wgt > 0 & complete.cases(bank[,c("Overall","Fees","Interest","Phone","Branch","Online","ATM")])
      zBank = bank[z, ]
@@ -263,7 +268,7 @@ test_that("VIF",
      zwgt = wgt[z]
      zRegression <- suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, data = zBank, weights = zwgt, type = type))
      zR <- survey::svyglm(dd ~ Fees + Interest + Phone + Branch + Online + ATM, data = zBank, design = flipData::WeightedSurveyDesign(zBank, zwgt), family = quasibinomial())
-     expect_equal(vif(zRegression), vif(zR))
+     expect_equal(vif(zRegression), new.vif(zR))
      # Checking for no errors
      for (type in c("Poisson","NBD", "Quasi-Poisson"))
         expect_error(capture.output(vif(suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank, type = type, subset = bank$ID > 100, weights = bank$ID)))), NA)
@@ -271,4 +276,3 @@ test_that("VIF",
      for (type in c( "Ordered Logit",  "Multinomial Logit"))
         expect_that(capture.output(vif(suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank, type = type, subset = bank$ID > 100, weights = bank$ID)))), (throws_error()))
  })
-
