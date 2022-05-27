@@ -234,46 +234,57 @@ test_that("Tests of non-constant variance (Breush-Pagen test)",
 
 })
 
-test_that("VIF",
-           {
-     library(car)
-     # Unweighted - linear
-     new.vif <- function(x) {
+test_that("VIF", {
+    library(car)
+    # Unweighted - linear
+    new.vif <- function(x) {
         out <- car::vif(x)
         out <- as.matrix(out)
         class(out) <- c(class(out), "visualization-selector")
         out
-     }
-     zRegression <- vif(suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank)))
-     zR <- new.vif(lm(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank))
-     expect_equal(zRegression, zR)
-     # Filtered - linear
-     zRegression <- vif(suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank, subset = bank$ID > 100)))
-     zR <- new.vif(lm(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank, subset = bank$ID > 100))
-     expect_equal(zRegression, zR)
-     # Weighted.
-     expect_error(vif(suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank, subset = bank$ID > 100, weights = bank$ID))), NA)
-     # Logit (used as a proxy for all the glms)
-     type = "Binary Logit"
-     zRegression <- suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank, type = type))
-     zR <- glm(Overall >= 4 ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank,  family = binomial(link = "logit"))
-     expect_equal(vif(zRegression), new.vif(zR))
-     # Logit - filtered
-     zRegression <- suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank, type = type, subset = bank$ID > 100))
-     zR <- glm(Overall >= 4 ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank,  family = binomial(link = "logit"), subset = bank$ID > 100)
-     expect_equal(vif(zRegression), new.vif(zR))
-     # Logit - filtered and weighted
-     z = wgt > 0 & complete.cases(bank[,c("Overall","Fees","Interest","Phone","Branch","Online","ATM")])
-     zBank = bank[z, ]
-     zBank$dd = zBank$Overall >= 4
-     zwgt = wgt[z]
-     zRegression <- suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, data = zBank, weights = zwgt, type = type))
-     zR <- survey::svyglm(dd ~ Fees + Interest + Phone + Branch + Online + ATM, data = zBank, design = flipData::WeightedSurveyDesign(zBank, zwgt), family = quasibinomial())
-     expect_equal(vif(zRegression), new.vif(zR))
-     # Checking for no errors
-     for (type in c("Poisson","NBD", "Quasi-Poisson"))
-        expect_error(capture.output(vif(suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank, type = type, subset = bank$ID > 100, weights = bank$ID)))), NA)
-     # Checking for errors in other types of models
-     for (type in c( "Ordered Logit",  "Multinomial Logit"))
-        expect_that(capture.output(vif(suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, data = bank, type = type, subset = bank$ID > 100, weights = bank$ID)))), (throws_error()))
- })
+    }
+    c.bank <- bank[complete.cases(bank), ]
+    reg.form <- Overall ~ Fees + Interest + Phone + Branch + Online + ATM
+    zRegression <- vif(Regression(reg.form, data = c.bank))
+    zR <- new.vif(lm(reg.form, data = c.bank))
+    expect_equal(zRegression, zR)
+    # Filtered - linear
+    subs <- c.bank[["ID"]] > 100
+    zRegression <- vif(Regression(reg.form, data = c.bank, subset = subs))
+    zR <- new.vif(lm(reg.form, data = c.bank, subset = subs))
+    expect_equal(zRegression, zR)
+    # Weighted.
+    w <- runif(nrow(c.bank))
+    expect_error(vif(Regression(reg.form, data = c.bank, subset = subs, weights = w)), NA)
+    # Logit (used as a proxy for all the glms)
+    type <- "Binary Logit"
+    c.bank[["overall.gt.4"]] <- c.bank[["Overall"]] >= 4
+    dichot.form <- overall.gt.4 ~ Fees + Interest + Phone + Branch + Online + ATM
+    zRegression <- Regression(dichot.form, data = c.bank, type = type)
+    zR <- glm(dichot.form, data = c.bank,  family = binomial(link = "logit"))
+    expect_equal(vif(zRegression), new.vif(zR))
+    # Logit - filtered
+    zRegression <- Regression(dichot.form, data = c.bank, type = type, subset = subs)
+    zR <- glm(dichot.form, data = c.bank,  family = binomial(link = "logit"), subset = subs)
+    expect_equal(vif(zRegression), new.vif(zR))
+    # Logit - filtered and weighted
+    z <- wgt > 0 & complete.cases(bank[, c("Overall", "Fees", "Interest", "Phone", "Branch", "Online", "ATM")])
+    zBank <- bank[z, ]
+    zwgt <- wgt[z]
+    zBank[["overall.gt.4"]] <- zBank[["Overall"]] >= 4
+    zRegression <- Regression(dichot.form, data = zBank, weights = zwgt, type = type)
+    zDesign <- flipData::WeightedSurveyDesign(zBank, zwgt)
+    zR <- survey::svyglm(dichot.form, data = zBank, design = zDesign, family = quasibinomial())
+    expect_equal(vif(zRegression), new.vif(zR))
+    # Checking for no errors
+    weights.list <- list(NULL, runif(nrow(c.bank)))
+    for (type in c("Poisson", "Quasi-Poisson", "Ordered Logit"))
+        for (w in weights.list)
+           expect_error(vif(Regression(reg.form, data = c.bank, type = type, subset = subs, weights = w)), NA)
+    for (w in weights.list)
+        expect_warning(vif(Regression(reg.form, data = c.bank, type = "NBD", subset = subs, weights = w)),
+                       "Model may not have converged")
+    # Checking for errors in other types of models
+   for (w in weights.list)
+        expect_error(vif(Regression(reg.form, data = c.bank, type = "Multinomial Logit", subset = subs, weights = w)))
+})
