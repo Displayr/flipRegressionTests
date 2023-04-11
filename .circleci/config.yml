@@ -54,6 +54,7 @@ jobs:
               results <- unlist(lapply(out, `[[`, "results"), recursive = FALSE);
               output <- readLines("test_output.txt");
               writeLines(output[grep("^[<][?]xml", output)[1L]:length(output)], "testthat.xml");
+              print(vapply(results, function(res) class(res)[1], ""));
               q(status = as.integer(!all(vapply(results, function(res) class(res)[1], "") %in%
               c("expectation_success", "expectation_skip"))), save = "no")'
 
