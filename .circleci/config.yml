@@ -3,11 +3,9 @@
 version: 2.1
 jobs:
   r-release:
-    docker:
-      - image: rocker/tidyverse:latest
-        auth:
-          username: mwmclean
-          password: $DOCKERHUB_PAT
+    machine:
+        image: ubuntu-2204:current
+    resource_class: large
 
     steps:
       - checkout
