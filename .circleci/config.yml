@@ -58,6 +58,9 @@ jobs:
       - store_test_results:
           path: testthat.xml
 
+      - store_artifacts:
+          path: testthat.xml
+
 workflows:
   build-and-check-R-package:
     jobs:
