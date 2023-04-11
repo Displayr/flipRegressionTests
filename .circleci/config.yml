@@ -35,6 +35,11 @@ jobs:
             echo -e '.libPaths("~/R/library")' >> $HOME/.Rprofile
             R -q -e 'options(warn = 2); devtools::install_deps(dependencies = TRUE)'
 
+      - save_cache:
+          key: R-package-library-{{ checksum "/tmp/R_version" }}
+          paths:
+            - R/library
+
       - run:
           name: "Check package"
           command: R -q -e 'rcmdcheck::rcmdcheck(args = c("--no-manual", "--ignore-vignettes", "--no-tests"), build_args = c("--no-build-vignettes"))'
@@ -52,12 +57,6 @@ jobs:
 
       - store_test_results:
           path: testthat.xml
-
-      # save R pkg cache -------------------------------------------------------
-      - save_cache:
-          key: R-package-library-{{ checksum "/tmp/R_version" }}
-          paths:
-            - R/library
 
 workflows:
   build-and-check-R-package:
