@@ -32,13 +32,15 @@ jobs:
             libnlopt-dev libgdal-dev libproj-dev r-base r-cran-devtools
             R -q -e 'if (!dir.exists("~/R/library")) dir.create("~/R/library", recursive = TRUE)'
             echo -e 'options(Ncpus = 4, repos = structure(c(CRAN = "https://cloud.r-project.org/")))' > $HOME/.Rprofile
-            echo -e '.libPaths("~/R/library")' >> $HOME/.Rprofile
+            export R_HOME=`R RHOME`
+            echo -e ".libPaths(c('$HOME/R/library', '/usr/lib/R/site-library', '/usr/lib/R/library'))" | \
+            sudo tee -a $R_HOME/etc/Rprofile.site
             R -q -e 'options(warn = 2); devtools::install_deps(dependencies = TRUE)'
 
       - save_cache:
           key: R-package-library-{{ checksum "/tmp/R_version" }}
           paths:
-            - R/library
+            - ../R/library
 
       - run:
           name: "Check package"
