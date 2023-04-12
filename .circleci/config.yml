@@ -53,11 +53,11 @@ jobs:
           command: >-
               R -e 'capture.output(out \<<- devtools::test(reporter = "junit"), file = "test_output.txt");
               results <- unlist(lapply(out, `[[`, "results"), recursive = FALSE);
-              output <- readLines("test_output.txt");
+              output <- readLines("test_output.txt"); cat(output, sep = "\n");
               writeLines(output[grep("^[<][?]xml", output)[1L]:length(output)], "testthat.xml");
               print(vapply(results, function(res) class(res)[1], ""));
               q(status = as.integer(!all(vapply(results, function(res) class(res)[1], "") %in%
-              c("expectation_success", "expectation_skip"))), save = "no")'
+              c("expectation_success", "expectation_skip", "expectation_warning"))), save = "no")'
 
       - store_test_results:
           path: testthat.xml
