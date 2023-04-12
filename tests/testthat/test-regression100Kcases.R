@@ -207,7 +207,7 @@ test_that("Diagnostics",
     ## Regression - Diagnostic - Plot - Cook's Distance vs Leverage
     expect_error(plot(fit, which = 6), NA)
     ## Regression - Diagnostic - Plot - Goodness of Fit
-    expect_error(GoodnessOfFitPlot(fit, max.points = 1000), NA)
+    expect_error(suppressWarnings(GoodnessOfFitPlot(fit, max.points = 1000)), NA)
     ## Regression - Diagnostic - Plot - Influence Index
     if (is.null(names(fit$original$residuals)))
         names(fit$original$residuals) <- seq_along(fit$original$residuals)
