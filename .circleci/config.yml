@@ -55,9 +55,11 @@ jobs:
               results <- unlist(lapply(out, `[[`, "results"), recursive = FALSE);
               output <- readLines("test_output.txt");
               writeLines(output[grep("^[<][?]xml", output)[1L]:length(output)], "testthat.xml");
-              test.classes <- vapply(results, function(res) class(res)[1], ""); if (any(test.classes == "expectation_warning"))
-              warning("Some tests produced unexpected warnings:\n", paste0(vapply(results[test.classes == "expectation_warning"],
-              function(x) paste0(x$test, ": ", x$message), ""), collapse = "\n"))
+              test.classes <- vapply(results, function(res) class(res)[1], "");
+              if (any(test.classes == "expectation_warning")) warning(
+              "Some tests produced unexpected warnings:\n",
+              paste0(vapply(results[test.classes == "expectation_warning"],
+              function(x) paste0(x[["test"]], ": ", x[["message"]]), ""), collapse = "\n"))
               q(status = as.integer(!all(test.classes %in%
               c("expectation_success", "expectation_skip", "expectation_warning"))), save = "no")'
 
