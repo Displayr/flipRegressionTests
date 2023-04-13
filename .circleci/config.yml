@@ -36,6 +36,7 @@ jobs:
             export R_HOME=`R RHOME`
             echo -e ".libPaths(c('$HOME/R/library', '/usr/lib/R/site-library', '/usr/lib/R/library'))" | \
             sudo tee -a $R_HOME/etc/Rprofile.site
+            R -q -e 'remotes::install_github("Displayr/flipDevTools")'
             R -q -e 'options(warn = 2); devtools::install_deps(dependencies = TRUE)'
 
       - save_cache:
@@ -50,18 +51,7 @@ jobs:
       - run:
           name: "Run unit tests"
           no_output_timeout: 80m
-          command: >-
-              R -e 'capture.output(out \<<- devtools::test(reporter = "junit"), file = "test_output.txt");
-              results <- unlist(lapply(out, `[[`, "results"), recursive = FALSE);
-              output <- readLines("test_output.txt");
-              writeLines(output[grep("^[<][?]xml", output)[1L]:length(output)], "testthat.xml");
-              test.classes <- vapply(results, function(res) class(res)[1], "");
-              if (any(test.classes == "expectation_warning")) warning(
-              "Some tests produced unexpected warnings.\n",
-              paste0(vapply(results[test.classes == "expectation_warning"],
-              function(x) paste0(x[["test"]], " - ", x[["message"]]), ""), collapse = "\n"))
-              q(status = as.integer(!all(test.classes %in%
-              c("expectation_success", "expectation_skip", "expectation_warning"))), save = "no")'
+          command: R -e 'q(status = flipDevTools::RunTestsOnCircleCI(), save = "no")'
 
       - store_test_results:
           path: testthat.xml
