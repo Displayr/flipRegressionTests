@@ -8,8 +8,8 @@ Description: Additional tests for the flipRegression package.
 License: GPL-3
 LazyData: TRUE
 Depends: R (>= 3.5.0)
-Imports: flipRegression
 Suggests: testthat,
+ flipRegression,
  flipExampleData,
  car,
  survey (<= 4.0),
