@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  r-packages: displayr/r-packages@dev:8bab5fd1a8a255dcab8be8244e356ad286a77ca7
+  r-packages: displayr/r-packages@dev:a03736327cc316a6d07d3d0efca8aa62ebd7275f
 parameters:
   trigger-message:
     type: string
@@ -38,26 +38,3 @@ workflows:
             - BuildAndCheckPackage
           context:
             - r_packages
-      - r-packages/deploy-package:
-          executor: << pipeline.parameters.executor >>
-          resource-class: small
-          requires:
-            - TestPackage
-          context:
-            - r_packages
-          filters:
-            branches:
-              only:
-                - master
-      - r-packages/trigger-revdeps:
-          executor: << pipeline.parameters.executor >>
-          resource-class: small
-          requires:
-            - TestPackage
-          context:
-            - r_packages
-          remote-deps: << pipeline.parameters.remote-deps >>
-          plugins-branch: << pipeline.parameters.plugins-branch >>
-          trigger-message: << pipeline.parameters.trigger-message >>
-          triggered-packages: << pipeline.parameters.triggered-packages >>
-
