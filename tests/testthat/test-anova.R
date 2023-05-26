@@ -1,4 +1,4 @@
-context("Anova")
+context("anova")  # Must match filename for CircleCI test splitting
 require(flipRegression)
 
 data(bank, package = "flipExampleData")

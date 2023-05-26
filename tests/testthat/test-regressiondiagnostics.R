@@ -1,4 +1,4 @@
-context("Regression Diagnostics")
+context("regressiondiagnostics")  # Must match filename for CircleCI test splitting
 suppressWarnings(RNGversion("3.5.3"))
 zformula <- formula("Overall ~ Fees + Interest + Phone + Branch + Online + ATM")
 data(bank, package = "flipExampleData")

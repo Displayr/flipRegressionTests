@@ -1,4 +1,4 @@
-context("Regression with 100,000 cases")
+context("regression100Kcases")  # Must match filename for CircleCI test splitting
 
 vehicles <- readRDS("vehicles100kNoNA.rds")
 vehicles$region_weight <- vapply(as.character(vehicles$region),
