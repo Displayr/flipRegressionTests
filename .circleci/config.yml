@@ -31,7 +31,7 @@ jobs:
       - run:
           name: Check out previous test metadata
           command: |
-            sudo apt-get install jq
+            apt-get install jq
             cat "${CIRCLE_INTERNAL_TASK_DATA}/circle-test-results/results.json" | jq .
       - r-packages/install_apt_packages:
           executor: << pipeline.parameters.executor >>
