@@ -84,8 +84,9 @@ jobs:
           name: "Run unit tests"
           no_output_timeout: 60m
           command: |
-            TEST=$(grep -oRP '(?<=context\(\")([A-z ])*(?=\"\))' tests/testthat | \
-            circleci tests split --split-by=timings --timings-type=filename)
+            TEST=$(grep -ohRP '(?<=context\(\")([^"])*(?=\"\))' tests/testthat | \
+            awk '{ gsub(" ", "_") ; print $0 }' | \
+            circleci tests split --split-by=timings --timings-type=classname)
             mkdir reports
             OUTFILE="reports/test_results$CIRCLE_NODE_INDEX.xml"
             CODE="flipDevTools::RunTestsOnCircleCI(filter = '$TEST', \
