@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  r-packages: displayr/r-packages@dev:a03736327cc316a6d07d3d0efca8aa62ebd7275f
+  r-packages: displayr/r-packages@dev:7fc41fbf91560161ecb541b84d76c79d5742b28b
 parameters:
   trigger-message:
     type: string
@@ -19,6 +19,92 @@ parameters:
     enum: [nightly, rocker, machine]
     default: nightly
 
+jobs:
+  TestPackage:
+    executor: r-packages/nightly
+    resource_class: large
+    parallelism: 4
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Check out previous test metadata
+          command: |
+            cat "${CIRCLE_INTERNAL_TASK_DATA}/circle-test-results/results.json" | jq .
+      - r-packages/install_apt_packages:
+          executor: << pipeline.parameters.executor >>
+          save-snapshots: false
+      - run:
+          name: "Setup cache"
+          command: |
+            if ! [[ -d ./tmp ]]; then
+              mkdir tmp
+            fi
+            echo "v2" > ./tmp/cache_vers  # Increment this to invalidate cache
+            R -s -e 'cat(format(getRversion()))' > ./tmp/R_version
+            echo "^tmp" >> .Rbuildignore
+      - restore_cache:
+          key: R-package-library-{{ checksum "./tmp/cache_vers" }}-{{ checksum "./tmp/R_version" }}
+      - run:
+          name: "Set R library paths"
+          command: |
+            if ! [[ -d ../vendor/apt/archives ]]; then
+              mkdir -p "$HOME"/R/library
+            fi
+            export LC_ALL=en_US.UTF-8  # May not be set by r-server container/nightly executor
+            R_HOME="$(R RHOME)"
+            export R_HOME
+            echo 'STRINGI_DISABLE_PKG_CONFIG=1' | tee -a "$R_HOME"/etc/Renviron.site
+
+            echo -e ".libPaths(c('$HOME/R/library','/usr/lib/opencpu/library',\
+            '/usr/lib/R/site-library', '/usr/lib/R/library'))" | \
+            sudo tee -a "$R_HOME"/etc/Rprofile.site
+      - unless:
+          condition:
+            equal: [ nightly, << pipeline.parameters.executor >> ]
+          steps:
+            - run:
+                name: "Install Hmisc if missing"
+                command: |
+                  HMISC=$(R -s -e "cat(as.integer(require('Hmisc', quietly=TRUE)))")
+                  if [[ "$HMISC" == "0" ]]; then
+                     sudo apt-get install -y r-cran-hmisc r-cran-devtools
+                  fi
+      - run:
+          name: Print test env var
+          command: |
+            TEST=$(circleci tests glob "tests/testthat/test-*.R" | \
+            circleci tests split --split-by=timings --timings-type=filename)
+            echo ${TEST}
+      - run:
+          environment:
+            CONTINUE_ON_FAIL: false
+          name: "Run unit tests"
+          no_output_timeout: 60m
+          command: |
+            TEST=$(circleci tests glob "tests/testthat/test-*.R" | \
+            circleci tests split --split-by=timings --timings-type=filename)
+            mkdir reports
+            OUTFILE="reports/test_results$CIRCLE_NODE_INDEX.xml"
+            CODE="flipDevTools::RunTestsOnCircleCI(filter = '$TEST', \
+            output_file = '$OUTFILE', load_package = 'source')"
+            GIT_BRANCH=$(git remote get-url origin | grep -oP '([\w-]+)(?=.git$)')
+            if [[ "$GIT_BRANCH" == "flipRegressionTests" ]]; then
+              CODE="library(flipRegression); q(status=$CODE)"
+            elif [[ "$GIT_BRANCH" == "flipChoiceTests" ]]; then
+              CODE="library(flipChoice); q(status=$CODE)"
+            elif ! (( CONTINUE_ON_FAIL == 1 )); then
+              CODE="q(status = $CODE, save = 'no')"
+            else
+              CODE="library(flipStandardCharts);$CODE;q(status=0)"
+            fi
+            R -q -e "$CODE"
+      - store_test_results:
+          path: reports/
+      - store_artifacts:
+          path: reports/
+
 workflows:
   build-and-check-R-package:
     jobs:
@@ -27,14 +113,11 @@ workflows:
           resource-class: large
           name: BuildAndCheckPackage
           context:
-            - r_packages
+              - r_packages
           remote-deps: << pipeline.parameters.remote-deps >>
           separate-test-job: true
-      - r-packages/test-package:
-          executor: << pipeline.parameters.executor >>
-          resource-class: large
-          name: TestPackage
+      - TestPackage:
           requires:
-            - BuildAndCheckPackage
+              - BuildAndCheckPackage
           context:
-            - r_packages
+              - r_packages
