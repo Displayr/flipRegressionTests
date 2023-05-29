@@ -37,7 +37,7 @@ attr(wgt, "label") <- "ID"
 attr(bank$Overall, "label") <- "Overall satisfaction"
 attr(bank$Fees, "label") <- "Fees paid"
 attr(bank$Online, "label") <- "Online banking"
-
+library(car)
 
 test_that(paste("Grand mean"),
 {
