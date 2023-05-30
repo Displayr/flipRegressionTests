@@ -24,14 +24,14 @@ for (type in c("Multinomial Logit", "Linear","Poisson", "Quasi-Poisson", "NBD"))
   {
       # no weight, no filter
       z = suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, missing = missing, data = bank, subset = TRUE,  weights = NULL, type = type))
-      expect_error(print(Anova(z)), NA)
+      expect_error(print(flipRegression::Anova(z)), NA)
       # Filter
       z <- suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, missing = missing, data = bank, subset = sb,  weights = NULL, type = type))
-      expect_error(print(Anova(z)), NA)
+      expect_error(print(flipRegression::Anova(z)), NA)
       # weight,
       z <- suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, missing = missing, data = bank, subset = TRUE,  weights = wgt, type = type))
-      expect_error(print(suppressWarnings(Anova(z))), NA)
+      expect_error(print(suppressWarnings(flipRegression::Anova(z))), NA)
       # weight, filter
       z <- suppressWarnings(Regression(Overall ~ Fees + Interest + Phone + Branch + Online + ATM, missing = missing, data = bank, subset = sb,  weights = wgt, type = type))
-      expect_error(print(suppressWarnings(Anova(z))), NA)
+      expect_error(print(suppressWarnings(flipRegression::Anova(z))), NA)
   })
