@@ -110,8 +110,8 @@ test_that(paste("Alternative ways of passing data in"),
       expect_error(print(Anova(z)), NA)
 })
 
-
-for(missing in c("Multiple imputation", "Imputation (replace missing values with estimates)", "Exclude cases with missing data"))
+## Multiple imputation test moved to test-imputation.R for CircleCI test splitting
+for(missing in c("Imputation (replace missing values with estimates)", "Exclude cases with missing data"))
     for (type in c("Multinomial Logit", "Linear","Poisson", "Quasi-Poisson", "NBD"))
         test_that(paste("Type by residual", missing, type),
       {
