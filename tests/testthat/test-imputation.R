@@ -1,6 +1,7 @@
 context("Anova Imputation")
 require(flipRegression)
 
+data(bank, package = "flipExampleData")
 bank <- bank[sample(nrow(bank), 300), ] # random sample of 300 rows to improve perfomance
 zformula <- formula("Overall ~ Fees + Interest + Phone + Branch + Online + ATM")
 sb <- bank$ID > 100
