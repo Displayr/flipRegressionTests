@@ -1,5 +1,6 @@
 context("Anova Imputation")
 require(flipRegression)
+library(car)
 
 data(bank, package = "flipExampleData")
 bank <- bank[sample(nrow(bank), 300), ] # random sample of 300 rows to improve perfomance
