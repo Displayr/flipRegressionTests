@@ -12,7 +12,7 @@ Imports: flipRegression
 Suggests: testthat,
  flipExampleData,
  car,
- survey (<= 4.0),
+ survey (>= 4.3),
  flipData
 Remotes:
  cran/survey@4.0,
