@@ -1,0 +1,18 @@
+name: Build flipRegressionTests
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build:
+    name: Build flipRegressionTests
+    permissions:
+      checks: write
+      contents: read
+    uses: Displayr/nixr-public/.github/workflows/build-flake-installable.yaml@master
+    with:
+      installable-path: pkgs.x86_64-linux.rPackages.flipRegressionTests
+      build-args: --override-input flipRegressionTests .
+      installable-name: flipRegressionTests
+    secrets: inherit
